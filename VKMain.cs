@@ -20,7 +20,7 @@ namespace VoteKick
 
         public override Version Version
         {
-            get { return new Version("1.0"); }
+            get { return new Version("1.1"); }
         }
 
         public override string Name
@@ -327,6 +327,7 @@ namespace VoteKick
             public double PercentofPlayersVoteYesToKick = 75;
             public double PercentofPlayersVoteYesToMute = 75;
             public double PercentofPlayersVoteYesToBan = 75;
+            public int AmountofPlayersForVotesToTakeEffect = 2;
             public string seconds = "Vote time below is in seconds.";
             public double VoteTime = 10;
             public int BanTimeInDays = 2;
