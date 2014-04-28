@@ -39,22 +39,78 @@ namespace VoteKick
 
                 if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
                 {
-                    TShock.Utils.Kick(Votekick.poll.playertobekicked, Votekick.config.KickMessage, true, false);
+                    TShock.Utils.Kick(Votekick.poll.votedplayer, Votekick.config.KickMessage, true, false);
                     Votekick.VoteKickRunning = false;
                     Votekick.poll.voters.Clear();
                     Votekick.poll.votedno.Clear();
                     Votekick.poll.votedyes.Clear();
-                    Votekick.poll.playertobekicked = null;
+                    Votekick.poll.votedplayer = null;
                 }
 
                 else
                 {
-                    TSPlayer.All.SendInfoMessage("The votekick on " + Votekick.poll.playertobekicked.Name + " has failed.");
+                    TSPlayer.All.SendInfoMessage("[VoteKick] The votekick on " + Votekick.poll.votedplayer.Name + " has failed.");
                     Votekick.VoteKickRunning = false;
                     Votekick.poll.voters.Clear();
                     Votekick.poll.votedno.Clear();
                     Votekick.poll.votedyes.Clear();
-                    Votekick.poll.playertobekicked = null;
+                    Votekick.poll.votedplayer = null;
+                }
+            }
+
+            if (Votekick.VoteMuteRunning)
+            {
+                double active = TShock.Utils.ActivePlayers();
+                double percentageofactive = ((active) * (Votekick.config.PercentofPlayersVoteYesToMute / 100));
+                double totalvoters = Votekick.poll.voters.Count;
+
+                if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
+                {
+                    TSPlayer.All.SendInfoMessage("[VoteMute] The vote to mute {0} has succeeded.", Votekick.poll.votedplayer.Name);
+                    Votekick.poll.votedplayer.mute = true;
+                    Votekick.VoteMuteRunning = false;
+                    Votekick.poll.voters.Clear();
+                    Votekick.poll.votedno.Clear();
+                    Votekick.poll.votedyes.Clear();
+                    Votekick.poll.votedplayer = null;
+                }
+
+                else
+                {
+                    TSPlayer.All.SendInfoMessage("[VoteMute] The vote to mute " + Votekick.poll.votedplayer.Name + " has failed.");
+                    Votekick.VoteMuteRunning = false;
+                    Votekick.poll.voters.Clear();
+                    Votekick.poll.votedno.Clear();
+                    Votekick.poll.votedyes.Clear();
+                    Votekick.poll.votedplayer = null;
+                }
+            }
+
+            if (Votekick.VoteBanRunning)
+            {
+                double active = TShock.Utils.ActivePlayers();
+                double percentageofactive = ((active) * (Votekick.config.PercentofPlayersVoteYesToBan / 100));
+                double totalvoters = Votekick.poll.voters.Count;
+
+                if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
+                {
+                    TShock.Utils.Kick(Votekick.poll.votedplayer, Votekick.config.BanMessage, true, false);
+                    TShock.Bans.AddBan(Votekick.poll.votedplayer.IP, Votekick.poll.votedplayer.Name, Votekick.poll.votedplayer.UUID, Votekick.config.BanMessage,false, "Server Vote", DateTime.UtcNow.AddDays(Votekick.config.BanTimeInDays).ToString("s"));
+                    Votekick.VoteBanRunning = false;
+                    Votekick.poll.voters.Clear();
+                    Votekick.poll.votedno.Clear();
+                    Votekick.poll.votedyes.Clear();
+                    Votekick.poll.votedplayer = null;
+                }
+
+                else
+                {
+                    TSPlayer.All.SendInfoMessage("[VoteBan] The vote to ban " + Votekick.poll.votedplayer.Name + " has failed.");
+                    Votekick.VoteBanRunning = false;
+                    Votekick.poll.voters.Clear();
+                    Votekick.poll.votedno.Clear();
+                    Votekick.poll.votedyes.Clear();
+                    Votekick.poll.votedplayer = null;
                 }
             }
         }
@@ -62,7 +118,17 @@ namespace VoteKick
         {
             if (Votekick.VoteKickRunning)
             {
-                TSPlayer.All.SendSuccessMessage("Votekick ending in {0} seconds to kick {1} ", (Votekick.config.VoteTime / 2), Votekick.poll.playertobekicked.Name);
+                TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to kick {1}.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name);
+            }
+
+            if (Votekick.VoteMuteRunning)
+            {
+                TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to mute {1}.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name);
+            }
+
+            if (Votekick.VoteBanRunning)
+            {
+                TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to ban {1} for a time length of {2} days.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name, Votekick.config.BanTimeInDays);
             }
         }
     }
