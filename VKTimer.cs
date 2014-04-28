@@ -36,8 +36,7 @@ namespace VoteKick
                 double active = TShock.Utils.ActivePlayers();
                 double percentageofactive = ((active) * (Votekick.config.PercentofPlayersVoteYesToKick / 100));
                 double totalvoters = Votekick.poll.voters.Count;
-                if (Votekick.poll.voters.Count > Votekick.config.AmountofPlayersForVotesToTakeEffect)
-                {
+
                     if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
                     {
                         TShock.Utils.Kick(Votekick.poll.votedplayer, Votekick.config.KickMessage, true, false);
@@ -57,11 +56,6 @@ namespace VoteKick
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
                     }
-                }
-                else
-                {
-                    TSPlayer.All.SendInfoMessage("[VoteKick] The vote has failed {0}/{1} players are needed to vote for it to take effect.", Votekick.poll.voters.Count, Votekick.config.AmountofPlayersForVotesToTakeEffect);
-                }
             }
 
             if (Votekick.VoteMuteRunning)
@@ -69,8 +63,7 @@ namespace VoteKick
                 double active = TShock.Utils.ActivePlayers();
                 double percentageofactive = ((active) * (Votekick.config.PercentofPlayersVoteYesToMute / 100));
                 double totalvoters = Votekick.poll.voters.Count;
-                if (Votekick.poll.voters.Count > Votekick.config.AmountofPlayersForVotesToTakeEffect)
-                {
+
                     if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
                     {
                         TSPlayer.All.SendInfoMessage("[VoteMute] The vote to mute {0} has succeeded.", Votekick.poll.votedplayer.Name);
@@ -91,11 +84,6 @@ namespace VoteKick
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
                     }
-                }
-                else
-                {
-                    TSPlayer.All.SendInfoMessage("[VoteMute] The vote has failed {0}/{1} players are needed to vote for it to take effect.", Votekick.poll.voters.Count, Votekick.config.AmountofPlayersForVotesToTakeEffect);
-                }
             }
 
             if (Votekick.VoteBanRunning)
@@ -103,8 +91,7 @@ namespace VoteKick
                 double active = TShock.Utils.ActivePlayers();
                 double percentageofactive = ((active) * (Votekick.config.PercentofPlayersVoteYesToBan / 100));
                 double totalvoters = Votekick.poll.voters.Count;
-                if (Votekick.poll.voters.Count > Votekick.config.AmountofPlayersForVotesToTakeEffect)
-                {
+
                     if (Votekick.poll.votedyes.Count > Votekick.poll.votedno.Count && Votekick.poll.votedyes.Count >= percentageofactive)
                     {
                         TShock.Utils.Kick(Votekick.poll.votedplayer, Votekick.config.BanMessage, true, false);
@@ -125,11 +112,6 @@ namespace VoteKick
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
                     }
-                }
-                else
-                {
-                    TSPlayer.All.SendInfoMessage("[VoteBan] The vote has failed {0}/{1} players are needed to vote for it to take effect.", Votekick.poll.voters.Count , Votekick.config.AmountofPlayersForVotesToTakeEffect );
-                }
             }
         }
         private void NotifyTimer(object sender, ElapsedEventArgs args)
