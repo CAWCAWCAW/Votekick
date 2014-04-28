@@ -20,7 +20,7 @@ namespace VoteKick
 
         public override Version Version
         {
-            get { return new Version("1.0"); }
+            get { return new Version("0.7"); }
         }
 
         public override string Name
@@ -61,8 +61,6 @@ namespace VoteKick
             base.Dispose(disposing);
         }
         public static bool VoteKickRunning = false;
-        public static bool VoteMuteRunning = false;
-        public static bool VoteBanRunning = false;
         public static Poll poll = new Poll();
         
         public class Poll
@@ -70,7 +68,7 @@ namespace VoteKick
             public List<TSPlayer> voters;
             public List<TSPlayer> votedyes;
             public List<TSPlayer> votedno;
-            public TSPlayer votedplayer;
+            public TSPlayer playertobekicked;
             public Poll()
             {
                 voters = new List<TSPlayer>();
@@ -83,13 +81,13 @@ namespace VoteKick
         {
             if (args.Parameters.Count == 0)
             {
-                args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /votekick [kick/mute/ban/voteyes/voteno/info/cancel]");
+                args.Player.SendErrorMessage("Invalid syntax! Proper syntax: /votekick [kick/voteyes/voteno/info/cancel]");
                 return;
             }
             switch (args.Parameters[0])
             {
                 case "voteyes":
-                    if (!poll.voters.Contains(args.Player) && (VoteKickRunning || VoteMuteRunning || VoteBanRunning))
+                    if (!poll.voters.Contains(args.Player) && VoteKickRunning)
                     {
                         args.Player.SendSuccessMessage("You have voted yes in the vote kick.");
                         poll.voters.Add(args.Player);
@@ -105,7 +103,7 @@ namespace VoteKick
                     }
                     break;
                 case "voteno":
-                    if (!poll.voters.Contains(args.Player) && (VoteKickRunning || VoteMuteRunning || VoteBanRunning))
+                    if (!poll.voters.Contains(args.Player) && VoteKickRunning)
                     {
                         args.Player.SendSuccessMessage("You have voted no in the vote kick.");
                         poll.voters.Add(args.Player);
@@ -122,128 +120,39 @@ namespace VoteKick
                     break;
 
                 case "kick":
-                    if (config.CanPlayersVoteKick)
+                    if (args.Parameters.Count > 1 && !VoteKickRunning)
                     {
-                        if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
+                        string playerstring = String.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1));
+                        var players = TShock.Utils.FindPlayer(playerstring);
+                        var plyr = players[0];
+                        if (players.Count == 0)
                         {
-                            string playerstring = String.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1));
-                            var players = TShock.Utils.FindPlayer(playerstring);
-                            var plyr = players[0];
-                            if (players.Count == 0)
-                            {
-                                args.Player.SendErrorMessage("No player matched your query '{0}'", playerstring);
-                            }
-                            else if (players.Count > 1)
-                            {
-                                TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
-                            }
+                            args.Player.SendErrorMessage("No player matched your query '{0}'", playerstring);
+                        }
+                        else if (players.Count > 1)
+                        {
+                            TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
+                        }
 
-                            TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a votekick against " + plyr.Name);
-                            VoteKickRunning = true;
-                            poll.votedplayer = plyr;
-                        }
-                        else if (VoteKickRunning || VoteMuteRunning || VoteBanRunning)
-                        {
-                            args.Player.SendErrorMessage("A player has already started a vote on " + poll.votedplayer.Name);
-                        }
-                        else
-                        {
-                            args.Player.SendErrorMessage("Error! Please use /votekick kick <playername>");
-                        }
+                        TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a votekick against " + plyr.Name);
+                        VoteKickRunning = true;
+                        poll.playertobekicked = plyr;
+                    }
+                    else if (VoteKickRunning)
+                    {
+                        args.Player.SendErrorMessage("A player has already started a votekick on " + poll.playertobekicked.Name);
                     }
                     else
                     {
-                        args.Player.SendErrorMessage("The vote ban feature has been turned off by the server owner.");
-                    }
-                    break;
-
-                case "mute":
-                    if (config.CanPlayersVoteMute)
-                    {
-                        if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
-                        {
-                            string playerstring = String.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1));
-                            var players = TShock.Utils.FindPlayer(playerstring);
-                            var plyr = players[0];
-                            if (players.Count == 0)
-                            {
-                                args.Player.SendErrorMessage("No player matched your query '{0}'", playerstring);
-                            }
-                            else if (players.Count > 1)
-                            {
-                                TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
-                            }
-
-                            TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a vote to mute " + plyr.Name);
-                            VoteMuteRunning = true;
-                            poll.votedplayer = plyr;
-                        }
-                        else if (VoteMuteRunning || VoteKickRunning || VoteBanRunning)
-                        {
-                            args.Player.SendErrorMessage("A player has already started a vote on " + poll.votedplayer.Name);
-                        }
-                        else
-                        {
-                            args.Player.SendErrorMessage("Error! Please use /votekick mute <playername>");
-                        }
-                    }
-                    else
-                    {
-                        args.Player.SendErrorMessage("The vote mute feature has been turned off by the server owner.");
-                    }
-                    break;
-
-                case "ban":
-                    if (config.CanPlayersVoteBan)
-                    {
-                        if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
-                        {
-                            string playerstring = String.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1));
-                            var players = TShock.Utils.FindPlayer(playerstring);
-                            var plyr = players[0];
-                            if (players.Count == 0)
-                            {
-                                args.Player.SendErrorMessage("No player matched your query '{0}'", playerstring);
-                            }
-                            else if (players.Count > 1)
-                            {
-                                TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
-                            }
-
-                            TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a vote to ban " + plyr.Name + " for {0} days.", config.BanTimeInDays);
-                            VoteBanRunning = true;
-                            poll.votedplayer = plyr;
-                        }
-                        else if (VoteMuteRunning || VoteKickRunning || VoteBanRunning)
-                        {
-                            args.Player.SendErrorMessage("A player has already started a vote on " + poll.votedplayer.Name);
-                        }
-                        else
-                        {
-                            args.Player.SendErrorMessage("Error! Please use /votekick ban <playername>");
-                        }
-                    }
-                    else
-                    {
-                        args.Player.SendErrorMessage("The vote ban feature has been turned off by the server owner.");
+                        args.Player.SendErrorMessage("Error! Please use /votekick kick playername");
                     }
                     break;
 
                 case "info":
                     if (VoteKickRunning)
-                    {
-                        args.Player.SendInfoMessage("Total Players: {0} Player to be kicked: {1}, Votes Yes: {2}, Votes No: {3}", TShock.Utils.ActivePlayers(), poll.votedplayer.Name, poll.votedyes.Count, poll.votedno.Count);
-                    }
-                    if (VoteMuteRunning)
-                    {
-                        args.Player.SendInfoMessage("Total Players: {0} Player to be muted: {1}, Votes Yes: {2}, Votes No: {3}", TShock.Utils.ActivePlayers(), poll.votedplayer.Name, poll.votedyes.Count, poll.votedno.Count);
-                    }
-                    if (VoteBanRunning)
-                    {
-                        args.Player.SendInfoMessage("Total Players: {0} Player to be ban: {1}, Votes Yes: {2}, Votes No: {3}", TShock.Utils.ActivePlayers(), poll.votedplayer.Name, poll.votedyes.Count, poll.votedno.Count);
-                    }
+                        args.Player.SendInfoMessage("Total Players: {0} Player to be kicked: {1}, Votes Yes: {2}, Votes No: {3}", TShock.Utils.ActivePlayers(), poll.playertobekicked.Name, poll.votedyes.Count, poll.votedno.Count);
                     else
-                        args.Player.SendErrorMessage("There is no vote running at this time.");
+                        args.Player.SendErrorMessage("There is no votekick running at this time");
                     break;
 
                 case "cancel":
@@ -252,12 +161,10 @@ namespace VoteKick
                         poll.voters.Clear();
                         poll.votedno.Clear();
                         poll.votedyes.Clear();
-                        poll.votedplayer = null;
+                        poll.playertobekicked = null;
                         VoteKickRunning = false;
-                        VoteMuteRunning = false;
-                        VoteBanRunning = false;
 
-                        TSPlayer.All.SendInfoMessage(args.Player.Name + " has canceled the vote against " + poll.votedplayer.Name);
+                        TSPlayer.All.SendInfoMessage(args.Player.Name + " has canceled the votekick to kick: " + poll.playertobekicked.Name);
                     }
                     else
                     {
@@ -325,17 +232,9 @@ namespace VoteKick
         public class Config
         {
             public double PercentofPlayersVoteYesToKick = 75;
-            public double PercentofPlayersVoteYesToMute = 75;
-            public double PercentofPlayersVoteYesToBan = 75;
-            public string seconds = "Vote time below is in seconds.";
+            public string seconds = "Vote time in seconds";
             public double VoteTime = 10;
-            public int BanTimeInDays = 2;
-            public bool CanPlayersVoteKick = true;
-            public string KickMessage = "You have been vote kicked from the server.";
-            public bool CanPlayersVoteMute = true;
-            public string MuteMessage = "You have been muted by a server vote.";
-            public bool CanPlayersVoteBan = true;
-            public string BanMessage = "Ban by vote from the server.";
+            public string KickMessage = "You have been vote kicked from the server";
 
         }
 
