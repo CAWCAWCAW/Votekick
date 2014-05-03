@@ -11,8 +11,8 @@ namespace VoteKick
 {
     public class VoteKickTimer
     {
-        private Timer VKTimer;
-        private Timer VKTimerNotify;
+        public Timer VKTimer;
+        public Timer VKTimerNotify;
 
         public VoteKickTimer()
         {
@@ -45,6 +45,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
 
                     else
@@ -55,6 +56,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
             }
 
@@ -73,6 +75,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
 
                     else
@@ -83,6 +86,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
             }
 
@@ -101,6 +105,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
 
                     else
@@ -111,6 +116,7 @@ namespace VoteKick
                         Votekick.poll.votedno.Clear();
                         Votekick.poll.votedyes.Clear();
                         Votekick.poll.votedplayer = null;
+                        VKTimerNotify.Stop();
                     }
             }
         }
@@ -119,16 +125,19 @@ namespace VoteKick
             if (Votekick.VoteKickRunning)
             {
                 TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to kick {1}.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name);
+                VKTimerNotify.Stop();
             }
 
             if (Votekick.VoteMuteRunning)
             {
                 TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to mute {1}.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name);
+                VKTimerNotify.Stop();
             }
 
             if (Votekick.VoteBanRunning)
             {
                 TSPlayer.All.SendSuccessMessage("The vote is ending in {0} seconds to ban {1} for a time length of {2} days.", (Votekick.config.VoteTime / 2), Votekick.poll.votedplayer.Name, Votekick.config.BanTimeInDays);
+                VKTimerNotify.Stop();
             }
         }
     }

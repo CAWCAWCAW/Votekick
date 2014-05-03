@@ -20,7 +20,7 @@ namespace VoteKick
 
         public override Version Version
         {
-            get { return new Version("1.1.5"); }
+            get { return new Version("1.2"); }
         }
 
         public override string Name
@@ -124,7 +124,7 @@ namespace VoteKick
                 case "kick":
                     if (config.CanPlayersVoteKick)
                     {
-                        if (TShock.Utils.ActivePlayers() > Votekick.config.AmountofPlayersForVotesToTakeEffect)
+                        if (TShock.Utils.ActivePlayers() >= Votekick.config.AmountofPlayersForVotesToTakeEffect)
                         {
                             if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
                             {
@@ -141,8 +141,10 @@ namespace VoteKick
                                 }
 
                                 TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a votekick against " + plyr.Name);
+                                TSPlayer.All.SendSuccessMessage("[VoteKick] To vote type in /votekick <voteyes/voteno>");
                                 VoteKickRunning = true;
                                 poll.votedplayer = plyr;
+                                _timers.Start();
                             }
                             else if (VoteKickRunning || VoteMuteRunning || VoteBanRunning)
                             {
@@ -167,7 +169,7 @@ namespace VoteKick
                 case "mute":
                     if (config.CanPlayersVoteMute)
                     {
-                        if (TShock.Utils.ActivePlayers() > Votekick.config.AmountofPlayersForVotesToTakeEffect)
+                        if (TShock.Utils.ActivePlayers() >= Votekick.config.AmountofPlayersForVotesToTakeEffect)
                         {
                             if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
                             {
@@ -184,8 +186,10 @@ namespace VoteKick
                                 }
 
                                 TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a vote to mute " + plyr.Name);
+                                TSPlayer.All.SendSuccessMessage("[VoteMute] To vote type in /votekick <voteyes/voteno>");
                                 VoteMuteRunning = true;
                                 poll.votedplayer = plyr;
+                                _timers.Start();
                             }
                             else if (VoteMuteRunning || VoteKickRunning || VoteBanRunning)
                             {
@@ -210,7 +214,7 @@ namespace VoteKick
                 case "ban":
                     if (config.CanPlayersVoteBan)
                     {
-                        if (TShock.Utils.ActivePlayers() > Votekick.config.AmountofPlayersForVotesToTakeEffect)
+                        if (TShock.Utils.ActivePlayers() >= Votekick.config.AmountofPlayersForVotesToTakeEffect)
                         {
                             if (args.Parameters.Count > 1 && !VoteKickRunning && !VoteMuteRunning && !VoteBanRunning)
                             {
@@ -227,8 +231,10 @@ namespace VoteKick
                                 }
 
                                 TSPlayer.All.SendWarningMessage(args.Player.Name + " has started a vote to ban " + plyr.Name + " for {0} days.", config.BanTimeInDays);
+                                TSPlayer.All.SendSuccessMessage("[VoteBan] To vote type in /votekick <voteyes/voteno>");
                                 VoteBanRunning = true;
                                 poll.votedplayer = plyr;
+                                _timers.Start();
                             }
                             else if (VoteMuteRunning || VoteKickRunning || VoteBanRunning)
                             {
@@ -279,7 +285,8 @@ namespace VoteKick
                             VoteKickRunning = false;
                             VoteMuteRunning = false;
                             VoteBanRunning = false;
-
+                            Votekick._timers.VKTimer.Stop();
+                            Votekick._timers.VKTimerNotify.Stop();
                             TSPlayer.All.SendInfoMessage(args.Player.Name + " has canceled the vote against " + poll.votedplayer.Name);
                         }
                         else
