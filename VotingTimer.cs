@@ -75,6 +75,8 @@ namespace Voting
                         var ip = ips[ips.Count - 1];
                         TShock.Bans.AddBan(ip, vote.votedplayer.Name, vote.votedplayer.UUID,
                             "vote banned", false, vote.votestarter.Name);
+                        TShock.Utils.Kick(TShock.Utils.FindPlayer(vote.votedplayer.Name)[0],
+                            "vote banned", true, false, vote.votestarter.Name);
 
                         TShock.Utils.Broadcast(string.Format("{0} was banned (Yes:No - {1}:{2})",
                             vote.votedplayer.Name, vote.votedyes.Count, vote.votedno.Count),

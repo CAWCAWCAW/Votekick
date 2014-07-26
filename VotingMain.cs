@@ -134,7 +134,7 @@ namespace Voting
 
         public override Version Version
         {
-            get { return new Version(1, 2); }
+            get { return new Version(1, 3); }
         }
 
         public override string Name
@@ -201,7 +201,7 @@ namespace Voting
                     }
                     if (!vote.voters.Contains(args.Player) && vote.active)
                     {
-                        args.Player.SendSuccessMessage("You have voted yes to kicking {0}", vote.votedplayer.Name);
+                        args.Player.SendSuccessMessage("You have voted yes to {0} {1}", vote.voteType, vote.votedplayer.Name);
                         vote.voters.Add(args.Player);
                         vote.votedyes.Add(args.Player);
                         return;
@@ -228,7 +228,7 @@ namespace Voting
                     }
                     if (!vote.voters.Contains(args.Player) && vote.active)
                     {
-                        args.Player.SendSuccessMessage("You have voted no to kicking {0}", vote.votedplayer.Name);
+                        args.Player.SendSuccessMessage("You have voted no to {0} {1}", vote.voteType, vote.votedplayer.Name);
                         vote.voters.Add(args.Player);
                         vote.votedno.Add(args.Player);
                         return;
@@ -336,7 +336,7 @@ namespace Voting
                         args.Player.SendErrorMessage("Vote kicking has been disabled by the server owner.");
 
                     break;
-
+                    
                     #endregion
 
                 #region Mute
@@ -348,8 +348,25 @@ namespace Voting
                         {
                             if (args.Parameters.Count > 1)
                             {
-                                var plStr = string.Join(" ",
-                                    args.Parameters.GetRange(2, args.Parameters.Count - 1)).ToLower();
+                                var plStr = args.Parameters.Count > 3
+                                    ? String.Join(" ",
+                                        args.Parameters.GetRange(1, args.Parameters.Count - 2)).ToLower()
+                                    : String.Join(" ",
+                                        args.Parameters.GetRange(1, args.Parameters.Count - 1)).ToLower();
+
+                                var players = TShock.Utils.FindPlayer(plStr);
+
+                                if (players.Count == 0)
+                                {
+                                    args.Player.SendErrorMessage("No users matched your query '{0}'", plStr);
+                                    return;
+                                }
+
+                                if (players.Count > 1)
+                                {
+                                    TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
+                                    return;
+                                }
 
                                 var users = new List<User>();
 
@@ -358,7 +375,7 @@ namespace Voting
                                 {
                                     if (u.Name.ToLower() == plStr)
                                     {
-                                        users = new List<User> {u};
+                                        users = new List<User> { u };
                                         break;
                                     }
                                     if (u.Name.ToLower().StartsWith(plStr))
@@ -366,10 +383,10 @@ namespace Voting
                                 }
 
                                 if (users.Count == 0)
-                                    args.Player.SendErrorMessage("No player matched your query '{0}'", plStr);
+                                    args.Player.SendErrorMessage("No users matched your query '{0}'", plStr);
 
                                 else if (users.Count > 1)
-                                    TShock.Utils.SendMultipleMatchError(args.Player, users.Select(u => u.Name));
+                                    TShock.Utils.SendMultipleMatchError(args.Player, users.Select(p => p.Name));
 
                                 var user = users[0];
 
@@ -379,6 +396,7 @@ namespace Voting
                                         Votes[user.Name].voteType.ToString(), user.Name);
                                     return;
                                 }
+
 
                                 vote = new Vote
                                 {
@@ -402,19 +420,19 @@ namespace Voting
                                 _timers.Start();
                             }
                             else
-                                args.Player.SendErrorMessage("Error! Please use /votekick mute <playername>");
+                                args.Player.SendErrorMessage("Error! Please use /voting mute <playername>");
                         }
                         else
                             args.Player.SendErrorMessage(
-                                "There is not enough players to enable a vote! {0}/{1} need to be on the server.",
-                                TShock.Utils.ActivePlayers(), config.AmountofPlayersForVotesToTakeEffect);
+                                "There are not enough players online to start a vote! {0} more players required.",
+                                config.AmountofPlayersForVotesToTakeEffect - TShock.Utils.ActivePlayers());
                     }
                     else
                         args.Player.SendErrorMessage("Vote muting has been disabled by the server owner.");
 
                     break;
 
-                    #endregion
+                #endregion
 
                 #region Ban
 
@@ -425,8 +443,25 @@ namespace Voting
                         {
                             if (args.Parameters.Count > 1)
                             {
-                                var plStr = String.Join(" ",
-                                    args.Parameters.GetRange(2, args.Parameters.Count - 1)).ToLower();
+                                var plStr = args.Parameters.Count > 3
+                                    ? String.Join(" ",
+                                        args.Parameters.GetRange(1, args.Parameters.Count - 2)).ToLower()
+                                    : String.Join(" ",
+                                        args.Parameters.GetRange(1, args.Parameters.Count - 1)).ToLower();
+
+                                var players = TShock.Utils.FindPlayer(plStr);
+
+                                if (players.Count == 0)
+                                {
+                                    args.Player.SendErrorMessage("No users matched your query '{0}'", plStr);
+                                    return;
+                                }
+
+                                if (players.Count > 1)
+                                {
+                                    TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
+                                    return;
+                                }
 
                                 var users = new List<User>();
 
@@ -435,7 +470,7 @@ namespace Voting
                                 {
                                     if (u.Name.ToLower() == plStr)
                                     {
-                                        users = new List<User> {u};
+                                        users = new List<User> { u };
                                         break;
                                     }
                                     if (u.Name.ToLower().StartsWith(plStr))
@@ -443,10 +478,10 @@ namespace Voting
                                 }
 
                                 if (users.Count == 0)
-                                    args.Player.SendErrorMessage("No player matched your query '{0}'", plStr);
+                                    args.Player.SendErrorMessage("No users matched your query '{0}'", plStr);
 
                                 else if (users.Count > 1)
-                                    TShock.Utils.SendMultipleMatchError(args.Player, users.Select(u => u.Name));
+                                    TShock.Utils.SendMultipleMatchError(args.Player, users.Select(p => p.Name));
 
                                 var user = users[0];
 
@@ -456,6 +491,7 @@ namespace Voting
                                         Votes[user.Name].voteType.ToString(), user.Name);
                                     return;
                                 }
+
 
                                 vote = new Vote
                                 {
@@ -479,18 +515,19 @@ namespace Voting
                                 _timers.Start();
                             }
                             else
-                                args.Player.SendErrorMessage("Error! Please use /votekick ban <playername>");
+                                args.Player.SendErrorMessage("Error! Please use /voting ban <playername>");
                         }
                         else
                             args.Player.SendErrorMessage(
-                                "There is not enough players to enable a vote! {0}/{1} need to be on the server.",
-                                TShock.Utils.ActivePlayers(), config.AmountofPlayersForVotesToTakeEffect);
+                                "There are not enough players online to start a vote! {0} more players required.",
+                                config.AmountofPlayersForVotesToTakeEffect - TShock.Utils.ActivePlayers());
                     }
                     else
                         args.Player.SendErrorMessage("Vote banning has been disabled by the server owner.");
+
                     break;
 
-                    #endregion
+                #endregion
 
                 #region Info
 
