@@ -164,7 +164,7 @@ namespace Voting
             _timers.Start();
 
             Commands.ChatCommands.Add(new Command("caw.vote", Vote, "voting", "v"));
-            Commands.ChatCommands.Add(new Command("caw.reloadvote", Reload_Config, "reloadvoting", "rv"));
+            Commands.ChatCommands.Add(new Command("caw.reloadvote", Reload_Config, "reloadvoting"));
         }
 
         protected override void Dispose(bool disposing)
